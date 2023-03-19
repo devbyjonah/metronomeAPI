@@ -1,16 +1,17 @@
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const mongoose = require("mongoose");
-const User = require("../models/User");
+//import GoogleStrategy from "passport-google-oauth20";
+import User from "../models/User";
 
-export default function (passport) {
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+export default function passportConfig(passport) {
 	passport.use(
 		new GoogleStrategy(
 			{
 				clientID: process.env.GOOGLE_CLIENT_ID,
 				clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-				callbackURL: "/auth/callback",
+				callbackURL: "http://localhost:4000/auth/callback",
 			},
 			async (accessToken, refreshToken, profile, done) => {
+				console.log(refreshToken);
 				const newUser = {
 					googleId: profile.id,
 					displayName: profile.displayName,
@@ -35,24 +36,15 @@ export default function (passport) {
 		)
 	);
 
-	passport.serializeUser((user, cb) => {
-		process.nextTick(() => {
-			return cb(null, {
-				id: user.id,
-				username: user.username,
-				picture: user.picture,
-			});
+	passport.serializeUser(function (user, cb) {
+		process.nextTick(function () {
+			cb(null, { id: user.id, username: user.username, name: user.name });
 		});
 	});
 
-	passport.deserializeUser((user, cb) => {
-		process.nextTick(async () => {
-			try {
-				let profile = await User.findById(user.id);
-				return cb(null, profile);
-			} catch (err) {
-				console.error(err);
-			}
+	passport.deserializeUser(function (user, cb) {
+		process.nextTick(function () {
+			return cb(null, user);
 		});
 	});
 }

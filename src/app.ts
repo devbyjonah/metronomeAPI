@@ -1,4 +1,5 @@
 import express, { Application } from "express";
+import Path from "path";
 import mongoose from "mongoose";
 import cors from "cors";
 import passport from "passport";
@@ -11,18 +12,19 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { Routes } from "./interfaces/routes.interface";
 import { config } from "dotenv";
-import { ConnectMongoOptions } from "connect-mongo/build/main/lib/MongoStore";
 
 class App {
 	public app: Application;
 	public env: string;
 	public port: string | number;
+	public db: mongoose.Connection;
 
 	constructor(routes: Routes[]) {
 		this.app = express();
 		this.env = process.env.NODE_ENV || "development";
 		this.port = process.env.PORT || 4000;
 
+		this.app.use(morgan("dev"));
 		config({ path: __dirname + "/.env" });
 		passportConfig(passport);
 		console.info(`Server running at ${__dirname}, better go and catch it!`);
@@ -53,19 +55,23 @@ class App {
 	}
 
 	private initializeMiddlewares() {
+		// set index option to non-existent file to disable
+		// index.html being served early by express
+		this.app.use(
+			express.static(Path.join(__dirname, "../build"), { index: "_" })
+		);
 		this.app.use(
 			session({
 				secret: process.env.SECRET,
 				resave: false,
 				saveUninitialized: false,
-				store: new MongoStore({
+				store: MongoStore.create({
 					mongoUrl: process.env.MONGO_URI,
 				}),
 			})
 		);
 		this.app.use(passport.initialize());
-		this.app.use(passport.session());
-		this.app.use(morgan("dev"));
+		this.app.use(passport.authenticate("session"));
 		this.app.use(cors());
 		this.app.use(hpp());
 		this.app.use(helmet());

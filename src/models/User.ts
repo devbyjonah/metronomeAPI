@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const UserSchema = new Schema({
 	googleId: {
@@ -29,4 +29,4 @@ const UserSchema = new Schema({
 	},
 });
 
-module.exports = model("User", UserSchema);
+export default model("User", UserSchema);

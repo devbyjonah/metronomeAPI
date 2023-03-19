@@ -7,14 +7,18 @@ export default class AuthController {
 		scope: ["profile", "email"],
 	});
 	public googleCallback = passport.authenticate("google", {
-		failureRedirect: "/google",
+		failureRedirect: "/auth/login",
 	});
 
 	public loginSuccess = (req: Request, res: Response) => {
-		// redirect to metronome application w/ JWT
-		res.redirect("http://localhost:3000");
+		res.redirect("/");
 	};
-	public logOut = (req: Request, res: Response) => {
-		// remove token from server memory and redirect to login page
+	public logOut = (req: Request, res: Response, next: NextFunction) => {
+		req.logOut((error) => {
+			if (error) {
+				return next(error);
+			}
+			res.redirect("/");
+		});
 	};
 }
