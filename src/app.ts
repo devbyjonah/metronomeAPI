@@ -55,26 +55,37 @@ class App {
 	}
 
 	private initializeMiddlewares() {
+		const sessionOptions = {
+			secret: process.env.SECRET,
+			resave: false,
+			saveUninitialized: false,
+			store: MongoStore.create({
+				mongoUrl: process.env.MONGO_URI,
+			}),
+		};
+		const contentSecurityPolicy = {
+			directives: {
+				"script-src": ["'self'", "https://cdn.jsdelivr.net"],
+				"img-src": [
+					"'self'",
+					"data:",
+					"https://lh3.googleusercontent.com/",
+				],
+			},
+		};
+
 		// set index option to non-existent file to disable
-		// index.html being served early by express
+		// automatic serving of index.html
 		this.app.use(
 			express.static(Path.join(__dirname, "../build"), { index: "_" })
 		);
-		this.app.use(
-			session({
-				secret: process.env.SECRET,
-				resave: false,
-				saveUninitialized: false,
-				store: MongoStore.create({
-					mongoUrl: process.env.MONGO_URI,
-				}),
-			})
-		);
+		this.app.use(session(sessionOptions));
 		this.app.use(passport.initialize());
 		this.app.use(passport.authenticate("session"));
 		this.app.use(cors());
 		this.app.use(hpp());
 		this.app.use(helmet());
+		this.app.use(helmet.contentSecurityPolicy(contentSecurityPolicy));
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
 		this.app.use(cookieParser());

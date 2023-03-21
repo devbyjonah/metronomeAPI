@@ -13,6 +13,7 @@ export default class UserController {
 			if (user) {
 				res.status(200).json({
 					_id: user._id,
+					image: user.image,
 					displayName: user.displayName,
 					firstName: user.firstName,
 					lastName: user.lastName,
