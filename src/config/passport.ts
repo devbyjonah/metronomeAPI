@@ -11,7 +11,6 @@ export default function passportConfig(passport) {
 				callbackURL: "http://localhost:4000/auth/callback",
 			},
 			async (accessToken, refreshToken, profile, done) => {
-				console.log(refreshToken);
 				const newUser = {
 					googleId: profile.id,
 					displayName: profile.displayName,
@@ -38,7 +37,9 @@ export default function passportConfig(passport) {
 
 	passport.serializeUser(function (user, cb) {
 		process.nextTick(function () {
-			cb(null, { id: user.id, username: user.username, name: user.name });
+			cb(null, {
+				id: user.id,
+			});
 		});
 	});
 
