@@ -55,6 +55,7 @@ class App {
 	}
 
 	private initializeMiddlewares() {
+		// init mongo store and session info
 		const sessionOptions = {
 			secret: process.env.SECRET,
 			resave: false,
@@ -63,6 +64,7 @@ class App {
 				mongoUrl: process.env.MONGO_URI,
 			}),
 		};
+		// identify sources of script and image files to be loaded
 		const contentSecurityPolicy = {
 			directives: {
 				"script-src": ["'self'", "https://cdn.jsdelivr.net"],
@@ -83,6 +85,7 @@ class App {
 		this.app.use(passport.initialize());
 		this.app.use(passport.authenticate("session"));
 		this.app.use(cors());
+		// hpp and helmet defend against HTTP Parameter Pollution and other security issues
 		this.app.use(hpp());
 		this.app.use(helmet());
 		this.app.use(helmet.contentSecurityPolicy(contentSecurityPolicy));
