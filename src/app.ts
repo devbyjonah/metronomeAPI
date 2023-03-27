@@ -81,6 +81,7 @@ class App {
 		this.app.use(
 			express.static(Path.join(__dirname, "../build"), { index: "_" })
 		);
+		this.app.use(cookieParser());
 		this.app.use(session(sessionOptions));
 		this.app.use(passport.initialize());
 		this.app.use(passport.authenticate("session"));
@@ -91,7 +92,6 @@ class App {
 		this.app.use(helmet.contentSecurityPolicy(contentSecurityPolicy));
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
-		this.app.use(cookieParser());
 	}
 
 	private initializeRoutes(routes: Routes[]) {
